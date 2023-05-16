@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://morningbee22.github.io</id>
+    <title>MorningBee</title>
+    <updated>2023-05-16T00:43:25.910Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://morningbee22.github.io"/>
+    <link rel="self" href="https://morningbee22.github.io/atom.xml"/>
+    <subtitle>想要回到浪浪山</subtitle>
+    <logo>https://morningbee22.github.io/images/avatar.png</logo>
+    <icon>https://morningbee22.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2023, MorningBee</rights>
+    <entry>
+        <title type="html"><![CDATA[关于零拷贝相关的一些内容]]></title>
+        <id>https://morningbee22.github.io/post/zerocopy/</id>
+        <link href="https://morningbee22.github.io/post/zerocopy/">
+        </link>
+        <updated>2023-05-09T15:34:58.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="dma技术">DMA技术</h1>
+<p>传统的IO过程是如下的</p>
+<p>其中 CPU在将数据拷贝到用户缓存区的过程中（也就是执行数据搬运的过程），是无法执行其他任务的，整个IO过程后需要CPU的参与</p>
+<figure data-type="image" tabindex="1"><img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683593161031-9761b89e-9b60-447c-b0d2-119ba5af2ee7.png" alt="img" loading="lazy"></figure>
+<p>为了提高效率，发明了DMA技术 -- 直接内存访问 direct memory access</p>
+<p>将数据的搬运过程交给了DMA控制器<img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683593486026-9213d10b-e09a-4925-8024-8382d94640b9.png" alt="img" loading="lazy"></p>
+<h1 id="传统的io流程-传输流程-没有对数据进行操作仅仅只是复制">传统的IO流程　传输流程　－－　没有对数据进行操作，仅仅只是复制</h1>
+<p>效率不高的原因主要是以下两个点</p>
+<ul>
+<li>涉及到4次数据复制</li>
+<li>4次CPU 用户态和内核态的切换</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683609167910-c02dffa2-0cf1-4f52-a9f9-b0c0ddabd7b2.png" alt="img" loading="lazy"></figure>
+<p>要提高数据传输的效率就要从一下两个方面去解读</p>
+<ol>
+<li>减少数据复制的次数</li>
+<li>减少上下文切换的次数</li>
+</ol>
+<h1 id="零拷贝">零拷贝</h1>
+<p>有两种方案</p>
+<ol>
+<li>mmap + write</li>
+<li>sendfile</li>
+</ol>
+<h2 id="mmap">mmap</h2>
+<p>使用虚拟内存技术将用户态和核心态 的虚拟内存地址都映射到同一块物理内存地址上</p>
+<p>mmap 函数将内核缓存区的数据　映射到　用户空间．不需要复制到用户空间</p>
+<p>write的时候，就不要再将数据从用户空间拷贝到内核空间，直接从内存中拷贝</p>
+<figure data-type="image" tabindex="3"><img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683623584753-e50f09ec-00b8-4385-ac61-6083b934b042.png" alt="img" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683623603026-9c8541f0-7e3d-44e0-b064-f42597d9db21.png" alt="img" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://zzfercn-blog.oss-cn-shanghai.aliyuncs.com/img/1683623612838-a46305ac-60e8-4a6c-bcf8-6bb27bbb641f.png" alt="img" loading="lazy"></figure>
+<ol>
+<li>对映射区域中数据的修改需要进行同步和互斥操作，以确保进程之间对数据的访问顺序和正确性。</li>
+<li>修改映射区域中的数据可能会影响其他进程的数据一致性，因此需要仔细设计和测试程序，确保其正确性和安全性。</li>
+</ol>
+<p>总之，使用 <code>mmap()</code> 函数映射文件或设备到进程的虚拟地址空间中，可以实现多个进程之间的数据共享。但是，在程序中是否能修改映射区域中的数据取决于权限设置和同步机制等因素，需要谨慎设计和测试程序，确保其正确性和安全性。</p>
+<h2 id="sendfile">sendfile</h2>
+<p>直接告诉你了文件源地址和目的地址，替代原本的write和read操作</p>
+<p>减少了两次上下文切换</p>
+<p>只适合于文件一个传输操作，并不能实现对文件的一个修改</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[IO前置知识]]></title>
+        <id>https://morningbee22.github.io/post/io-qian-zhi-zhi-shi/</id>
+        <link href="https://morningbee22.github.io/post/io-qian-zhi-zhi-shi/">
+        </link>
+        <updated>2023-05-08T14:49:53.000Z</updated>
+        <content type="html"><![CDATA[<p><a name="s6uqi"></a></p>
+<h1 id="前置知识">前置知识</h1>
+<p>要搞清楚一个点: linux内存分为两种模式:内核态 kernel model 和 用户态  user model<br />内核态拥有较高的权限,可以执行任何的CPU指令,访问任何的内存地址,其占用的处理机是不被抢占的；可以理解为任何高权限的操作、危险性较高的操作都需要交给内核态来完成<br />CPU指令也是有权限集的，不同危险程度的指令，所需要的权限也不相同<br />内核态的崩溃会导致PC停机，而用户态的崩溃只会导致当前程序的崩溃，不会影响到其他的进程<br />内核态和用户态的切换</p>
+<ol>
+<li>系统调用</li>
+<li>异常</li>
+<li>外围设备的中断</li>
+</ol>
+<p>文件描述符 fd  file descriptor<br />用于描述指向文件的引用的抽象化概念，是一个非负整数；是一个索引值，指向内核为每一个进程所维护的该进程打开文件的记录表<br />当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符号<br /><a href="https://juejin.cn/post/6844903962043236365">每个进程都维护了自己的一个 描述符号集合，即使是打开同一个文件，也会返回不同的文件描述符</a> 文件描述符其实就是 file结构体数组的索引<br /><a href="https://juejin.cn/post/6844904005202608136">默认的每个进程的文件描述符数量是固定的，也可以查询到当前打开了多少个文件描述符</a><br>
+<a name="ZBuy4"></a></p>
+<h1 id="5种io模型">5种IO模型</h1>
+<p>linux有五种IO模型</p>
+<ul>
+<li>阻塞IO</li>
+<li>非阻塞IO</li>
+<li>IO复用</li>
+<li>信号驱动IO</li>
+<li>异步IO</li>
+</ul>
+<p>数据准备好　等价于　　数据复制到应用进程缓存区<br />阻塞IO和非阻塞IO都非常的好懂</p>
+<ul>
+<li>阻塞ＩＯ：文件未准备好的话，进程就阻塞住与当前的系统调用，进程阻塞并不消耗ＣＰＵ资源</li>
+<li>非阻塞ＩＯ：文件未准备好的话，系统调用就会返回给进程一个错误，进程并不会阻塞，而是不断地进行　系统调用，系统调用不断地返回错误．．．直到文件准备完毕 -- 轮询</li>
+</ul>
+<p>IO多路复用 -- 一种更优秀的阻塞IO<br />当使用select 或者 poll 等待数据，而且可以等待多个套接字中的任何一个变成可读，这一过程也是会阻塞进程的，和阻塞IO一样，不同的是 阻塞IO监听一个套接字，IO多路复用监听多个套接字<br />之后再使用recvfrom将数据从内核复制到进程中（阻塞式IO一开始就调用了recvform 系统调用）<br />让单个进程具有了处理多个IO事件的能力，也称之为事件驱动IO</p>
+<p>信号驱动io --  一种更优秀的非阻塞IO</p>
+<blockquote>
+<p>在使用信号驱动 I/O 模型或非阻塞式 I/O 模型时，应用程序在进行 I/O 操作时可以注册一个回调函数，并在回调函数被调用时处理已经完成的 I/O 操作结果。因此，即使当前的 I/O 操作未完成，应用程序也可以继续执行其他任务，而不会停止或崩溃。</p>
+</blockquote>
+<p>并不是轮询，而是程序继续执行，等待内核返回信号后，执行recvform将数据读入到进程</p>
+<p>异步IO<br />进行 aio_read 系统调用会立即返回，应用进程继续执行，不会被阻塞，内核会在所有操作完成之后向应用进程发送信号。异步 I/O 与信号驱动 I/O 的区别在于，异步 I/O 的信号是通知应用进程 I/O 完成，而信号驱动 I/O 的信号是通知应用进程可以开始 I/O。<br>
+<a name="Bwu3a"></a></p>
+<h1 id="io多路复用的三种实现方式">IO多路复用的三种实现方式</h1>
+<p><a name="TeuDD"></a></p>
+<h2 id="为什么需要io多路复用">为什么需要IO多路复用？</h2>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/jpeg/12770194/1683247486754-eb710391-47f0-4d33-93de-9d7ad0e09b21.jpeg" alt="" loading="lazy"><br>
+<a name="Xja5h"></a></p>
+<h2 id="select">select</h2>
+<p>如果需要调整每个进程能打开的文件描述符个数的话，只需要修改配置文件就好了<br />但是要修改select fd_set的长度的话，需要去修改linux的代码和重新编译linux<br />是一个长度的1024的数组，这个是代码中写死的，为了和Linux中的单个进程能打开的文件描述符个数对应<br />linux中设置的每个进程能打开fd的最大个数，可以修改（但是需要重新编译linux，好像也不需要）<br />就算我们修改参数的后的这个长度也是写死的，相当于受到了自己程序的限制 -- 历史局限性导致的<br /><a href="https://blog.csdn.net/stpeace/article/details/73718969">https://blog.csdn.net/stpeace/article/details/73718969</a><br />从几大缺点上去分析</p>
+<ol>
+<li>每次需要将fp_set 在用户态和内核态之间进行复制，消耗资源。而且每次都需要将这三个fd_set进行重置</li>
+<li>监听的fd个数有限制</li>
+<li>对待检测集合的检测是线性的</li>
+<li>不知道是哪个具体的那个文件描述符发生了变化，需要遍历整个bitmap数组<br>
+<a name="rjkIv"></a></li>
+</ol>
+<h2 id="poll">poll</h2>
+<p>优化了存储fd的数据结构，使用了链表，没有了1024的限制（软件 - 代码层面） -- 还是需要根据linux的设置来判断<br>
+<a name="Iwiyr"></a></p>
+<h2 id="epoll">epoll</h2>
+<p>select/poll 效率低的原因： 需要在内核态和用户态来回来回复制 fd集合 并且需要线性循环检测哪个描述符发生了读写事件，时间复杂度为O(n)<br />还有一个原因就是：将添加/维护待检测队列和 线程/进程的阻塞组合在一步<br />而epoll 有三个关键的函数<br />epoll_create    创建了epoll相关的数据结果<br />epoll_ctl   添加维护检测队列 --  添加维护fd链表<br />epoll_wait  阻塞线程进程 -- 如果没有就绪的fd的话</p>
+<p>他这里是将就绪的fd单独存储在一起的，就少掉了线性检测的这一个过程</p>
+<p>至于内核态和用户态之间来回的数据结果复制的话，采用了mmap技术 DMA 实现的零拷贝<br>
+<a name="bRK2i"></a></p>
+<h1 id="参考文章">参考文章</h1>
+<p><a href="https://zhuanlan.zhihu.com/p/115912936">100%弄明白5种IO模型</a><br /><a href="https://juejin.cn/post/7130952602350534693">(七)Java网络编程-IO模型篇之从BIO、NIO、AIO到内核select、epoll剖析！ - 掘金</a><br /><a href="https://juejin.cn/post/6882984260672847879">彻底理解 IO 多路复用实现机制 - 掘金</a>  <br /><a href="https://juejin.cn/post/6923863670132850701">从根上理解用户态与内核态 - 掘金</a><br /><a href="https://juejin.cn/post/6844904005202608136">文件描述符fd（File Descriptor）简介 - 掘金</a><br /><a href="https://www.itzhai.com/articles/it-seems-not-so-perfect-signal-driven-io.html">三分钟短文快速了解信号驱动式IO，似乎没那么完美</a><br /><a href="https://subingwen.cn/linux/select/">IO多路转接（复用）之select</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[观后感 -- 《我的团长我的团》《士兵突击》]]></title>
+        <id>https://morningbee22.github.io/post/guan-hou-gan-lesslesswo-de-tuan-chang-wo-de-tuan-greatergreater-lesslessshi-bing-tu-ji-greatergreater/</id>
+        <link href="https://morningbee22.github.io/post/guan-hou-gan-lesslesswo-de-tuan-chang-wo-de-tuan-greatergreater-lesslessshi-bing-tu-ji-greatergreater/">
+        </link>
+        <updated>2023-05-03T08:48:15.000Z</updated>
+        <content type="html"><![CDATA[<p>  这两部电视剧都是很好的电视剧，都是兰小龙编剧的作品，群像刻画都非常好（我认为这是判断一步好剧的关键一点，群像是不断回味一部剧的一大动力，每一次的回味都能发现不同的亮点）。<br>
+　　不同的是，士兵突击适合在迷茫的时候看，它很好懂，我们跟着剧情走就好了，在许三多的不断成长中，我们也能在其中找到动力和能量。剧中的每一个角色都是有血有肉的，但与团长相比，这些角色是点缀，是绿叶，但可能是因为主线是许三多一个人，所以可能每一个角色在许三多成长的某一个阶段出现，在我看来并不是十分的丰满。而我的团长我的团适合在清醒的时候看，我的团长我的团是需要很深的思考才能看懂的电视剧，它的许多东西都没有讲明，需要我们自己思考，需要我们自己发现其中的暗藏的玄机，许多细节很不好懂，如果光看电视机的话，可能看的云里雾里，其中的每一个角色都值的回味。主线是一群人的成长。其中龙文章可能虽然难懂，但是主角是他，对他的解读较多；但是其他的主角就比较难懂了，三个读书人：烦了、林译、克劳勃、不辣锅、兽医-- 我是比较感兴趣的。<br>
+　　烦了是一个不断怀疑的、不断抱怨的、悲观的理想主义者；<br>
+　　林译是乐观的理想主义者；<br>
+　　克劳勃，我在看电视剧的时候，以为这就是一个爱吃的胖子，看起来呆呆的，与他的身份（炮兵）、受的教育、家庭背景是不相符合的，看的小说中对这个角色进行更近一步的丰满完善了。<br>
+我的团长我的团，是先有的电视剧再有的小说，但我看来，可能小说中的内容可能就是原本的内容，放在电视剧中播放的时候，可能需要进行一些修改。</p>
+]]></content>
+    </entry>
+</feed>
